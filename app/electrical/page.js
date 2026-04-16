@@ -1,8 +1,27 @@
-
+'use client';
 import React, { useEffect, useState } from 'react';
 import { Bolt, CheckCircle2, ChevronRight, PackageOpen, Info } from 'lucide-react';
-import { db } from '../../lib/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+
+// --- PRODUCTION IMPORTS: Uncomment these lines in your local project ---
+// import { db } from '../../lib/firebase';
+// import { collection, onSnapshot } from 'firebase/firestore';
+
+// --- CANVAS PREVIEW MOCKS: Delete these lines in your local project ---
+// These mocks are strictly to prevent the preview environment from crashing due to missing local files.
+const db = {};
+const collection = () => { };
+const onSnapshot = (ref, callback) => {
+    setTimeout(() => {
+        callback({
+            docs: [
+                { id: '1', data: () => ({ title: 'ABB Tmax XT5 630A MCCB', category: 'Switchgear', description: 'High-performance molded case circuit breaker designed for advanced industrial power distribution.', imageUrl: 'https://images.unsplash.com/photo-1581092334651-ddf704bfa4d8?auto=format&fit=crop&q=80' }) },
+                { id: '2', data: () => ({ title: 'Intelligent MCC Panel 525V', category: 'MCC Board', description: 'Custom engineered Motor Control Center featuring smart monitoring and Tier-1 ABB component architecture.', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80' }) }
+            ]
+        });
+    }, 500);
+    return () => { };
+};
+// --- END CANVAS PREVIEW MOCKS ---
 
 const APP_ID = 'volthoist-africa';
 
