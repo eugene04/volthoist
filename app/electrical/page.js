@@ -1,29 +1,8 @@
-'use client';
+
 import React, { useEffect, useState } from 'react';
 import { Bolt, CheckCircle2, ChevronRight, PackageOpen, Info } from 'lucide-react';
-
-/** * IMPORTANT FOR LOCAL DEVELOPMENT: 
- * Uncomment the real imports below and remove the mock section 
- * when using this in your actual Next.js 'volthoist' project.
- */
-/* import { db } from '../../lib/firebase';
+import { db } from '../../lib/firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
-*/
-
-// --- MOCK SECTION FOR PREVIEW (Remove when pasting into local project) ---
-const db = {};
-const collection = () => { };
-const onSnapshot = (ref, callback) => {
-    setTimeout(() => {
-        callback({
-            docs: [
-                { id: '1', data: () => ({ title: 'ABB Tmax XT5 630A MCCB', category: 'Switchgear', description: 'Premium MCCB for industrial applications.', imageUrl: '' }) }
-            ]
-        });
-    }, 800);
-    return () => { };
-};
-// --- END MOCK SECTION ---
 
 const APP_ID = 'volthoist-africa';
 
@@ -31,14 +10,24 @@ export default function Electrical() {
     const [catalogItems, setCatalogItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Define the categories relevant to this specific division
     const electricalCategories = ['MCC Board', 'Switchgear', 'VSD / Soft Starter'];
 
     useEffect(() => {
-        const unsubShowroom = onSnapshot(collection(db, 'artifacts', APP_ID, 'public', 'data', 'showroom'), (snapshot) => {
-            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setCatalogItems(items.filter(item => electricalCategories.includes(item.category)));
-            setLoading(false);
-        });
+        // Real-time listener for the public showroom data
+        const unsubShowroom = onSnapshot(
+            collection(db, 'artifacts', APP_ID, 'public', 'data', 'showroom'),
+            (snapshot) => {
+                const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Filter for electrical hardware
+                setCatalogItems(items.filter(item => electricalCategories.includes(item.category)));
+                setLoading(false);
+            },
+            (error) => {
+                console.error("Firestore Error:", error);
+                setLoading(false);
+            }
+        );
 
         return () => unsubShowroom();
     }, []);
@@ -60,13 +49,22 @@ export default function Electrical() {
                             Locally designed by Eugene Jemwa and Ryan Tshuma. We engineer and supply world-class panels utilizing Tier-1 ABB components to ensure maximum operational uptime for your mining operations.
                         </p>
                         <ul className="space-y-5 font-bold text-slate-300">
-                            <li className="flex items-center space-x-4"><CheckCircle2 className="text-blue-500 w-6 h-6" /><span>ABB Integrated Architectures</span></li>
-                            <li className="flex items-center space-x-4"><CheckCircle2 className="text-blue-500 w-6 h-6" /><span>Intelligent Power Factor Correction (PFC)</span></li>
-                            <li className="flex items-center space-x-4"><CheckCircle2 className="text-blue-500 w-6 h-6" /><span>South African Manufacturing Precision</span></li>
+                            <li className="flex items-center space-x-4">
+                                <CheckCircle2 className="text-blue-500 w-6 h-6" />
+                                <span>ABB Integrated Architectures</span>
+                            </li>
+                            <li className="flex items-center space-x-4">
+                                <CheckCircle2 className="text-blue-500 w-6 h-6" />
+                                <span>Intelligent Power Factor Correction (PFC)</span>
+                            </li>
+                            <li className="flex items-center space-x-4">
+                                <CheckCircle2 className="text-blue-500 w-6 h-6" />
+                                <span>South African Manufacturing Precision</span>
+                            </li>
                         </ul>
                     </div>
 
-                    {/* Custom CSS Graphic */}
+                    {/* Custom High-End CSS Graphic */}
                     <div className="md:w-1/2 w-full">
                         <div className="bg-slate-900 rounded-[3rem] p-8 md:p-12 h-full min-h-[400px] shadow-2xl overflow-hidden group relative flex items-center justify-center border border-slate-800">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -mr-10 -mt-10 transition-all duration-700 group-hover:bg-blue-500/30"></div>
@@ -92,7 +90,6 @@ export default function Electrical() {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </section>
 
@@ -111,7 +108,7 @@ export default function Electrical() {
                     <div className="text-center py-24 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
                         <PackageOpen className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                         <h4 className="text-xl font-bold text-slate-900 mb-2">Catalog is Currently Updating</h4>
-                        <p className="text-slate-500 text-sm">Eugene and Ryan are finalizing the upload of our latest ABB switchgear and VSD lines. Please check back shortly.</p>
+                        <p className="text-slate-500 text-sm">Our engineers are finalizing the technical specifications for our newest inventory. Please check back shortly.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -132,8 +129,12 @@ export default function Electrical() {
                                     <p className="text-sm text-slate-500 font-medium leading-relaxed mb-8 flex-grow">
                                         {item.description}
                                     </p>
-                                    <button className="w-full bg-slate-50 text-slate-900 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition flex justify-center items-center gap-2 group/btn">
-                                        <Info size={16} /> Request Datasheet & Quote <ChevronRight size={16} className="text-transparent group-hover/btn:text-white transition-colors" />
+                                    <button
+                                        className="w-full bg-slate-50 text-slate-900 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition flex justify-center items-center gap-2 group/btn"
+                                        onClick={() => window.location.href = `mailto:info@volthoist.com?subject=Inquiry: ${item.title}`}
+                                    >
+                                        <Info size={16} /> Request Datasheet & Quote
+                                        <ChevronRight size={16} className="text-transparent group-hover/btn:text-white transition-colors" />
                                     </button>
                                 </div>
                             </div>
